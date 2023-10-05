@@ -57,6 +57,7 @@ dev_dependencies:
 flutter:
 
   assets:
+    - assets/questions/daily_questions.json
     - assets/questions/example_questions.json
 
   # The following line ensures that the Material Icons font is
