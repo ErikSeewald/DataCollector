@@ -32,6 +32,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  path_provider: ^2.0.14  # Replace with the latest version
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -53,6 +55,9 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+
+  assets:
+    - assets/questions/example_questions.json
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

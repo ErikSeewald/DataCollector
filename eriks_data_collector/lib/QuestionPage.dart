@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'constants.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class QuestionPage extends StatefulWidget {
   @override
@@ -11,6 +13,7 @@ class QuestionPage extends StatefulWidget {
 
 class _QuestionPageState extends State<QuestionPage> {
   List<Map<String, dynamic>> questions = [];
+  Map<String, String> answers = {};
   int questionIndex = 0;
   TextEditingController answerController = TextEditingController();
 
@@ -21,7 +24,7 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 
   Future<void> _loadQuestions() async {
-    String jsonString = await rootBundle.loadString('questions/example_questions.json');
+    String jsonString = await rootBundle.loadString('assets/questions/example_questions.json');
     List<dynamic> jsonData = jsonDecode(jsonString);
     setState(() {
       questions = jsonData.cast<Map<String, dynamic>>();
@@ -29,11 +32,35 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 
   void _answerQuestion() {
-    String answer = answerController.text;
+    String questionId = questions[questionIndex]['id'];
+    answers[questionId] = answerController.text;
+
     setState(() {
       questionIndex = (questionIndex + 1) % questions.length;
       answerController.clear();
+
+      //Final question answered
+      if (questionIndex == 0) {
+        String currentDate = DateTime.now().toString().split(' ')[0];
+        _appendAnswers(currentDate, answers);
+        Navigator.pop(context); //return
+      }
     });
+  }
+
+  Future<void> _appendAnswers(String date, Map<String, String> answers) async {
+    Directory directory = await getApplicationDocumentsDirectory();
+    File file = File('${directory.path}/answers.txt');
+
+    Map<String, dynamic> jsonContent = {};
+    if (await file.exists()) {
+      String fileContent = await file.readAsString();
+      jsonContent = jsonDecode(fileContent);
+    }
+    jsonContent[date] = answers;
+
+    await file.writeAsString(jsonEncode(jsonContent));
+    print(await file.readAsString());
   }
 
   @override

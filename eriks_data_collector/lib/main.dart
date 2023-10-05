@@ -26,15 +26,31 @@ class MyHomePage extends StatelessWidget {
       ),
       backgroundColor: Constants.backgroundCol,
       body: Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Constants.buttonCol
-          ),
-          onPressed: () {
-            Navigator.pushNamed(context, '/questionPage');
-          },
-          child: Text('Daily Questions'),
-        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(50.0),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Constants.buttonCol
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/questionPage');
+              },
+              child: Text('Daily Questions'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Constants.buttonCol
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/questionPage');
+              },
+              child: Text('Copy Answers File'),
+            ),
+          ]
+        )
       ),
     );
   }
