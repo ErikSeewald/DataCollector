@@ -24,7 +24,7 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 
   Future<void> _loadQuestions() async {
-    String jsonString = await rootBundle.loadString('assets/questions/example_questions.json');
+    String jsonString = await rootBundle.loadString('assets/questions/daily_questions.json');
     List<dynamic> jsonData = jsonDecode(jsonString);
     setState(() {
       questions = jsonData.cast<Map<String, dynamic>>();
