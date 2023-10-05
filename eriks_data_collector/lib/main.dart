@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'QuestionPage.dart';
 import 'constants.dart';
+import 'FileContentCopier.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -21,36 +24,34 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Eriks Data Collector'),
+        title: const Text('Eriks Data Collector'),
         backgroundColor: Constants.buttonCol,
       ),
       backgroundColor: Constants.backgroundCol,
       body: Center(
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(50.0),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Constants.buttonCol
-              ),
+                  backgroundColor: Constants.buttonCol),
               onPressed: () {
                 Navigator.pushNamed(context, '/questionPage');
               },
-              child: Text('Daily Questions'),
+              child: const Text('Daily Questions'),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Constants.buttonCol
-              ),
+                  backgroundColor: Constants.buttonCol),
               onPressed: () {
-                Navigator.pushNamed(context, '/questionPage');
+                FileContentCopier.copy(context);
               },
-              child: Text('Copy Answers File'),
+              child: const Text('Copy answers to clipboard'),
             ),
-          ]
-        )
+          ],
+        ),
       ),
     );
   }

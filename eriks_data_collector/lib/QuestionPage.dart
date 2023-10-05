@@ -26,9 +26,12 @@ class _QuestionPageState extends State<QuestionPage> {
   Future<void> _loadQuestions() async {
     String jsonString;
     try {
-      jsonString = await rootBundle.loadString('assets/questions/daily_questions.json');
-    } catch (e) { //FALLBACK
-      jsonString = await rootBundle.loadString('assets/questions/example_questions.json');
+      jsonString =
+          await rootBundle.loadString('assets/questions/daily_questions.json');
+    } catch (e) {
+      //FALLBACK
+      jsonString = await rootBundle
+          .loadString('assets/questions/example_questions.json');
     }
 
     List<dynamic> jsonData = jsonDecode(jsonString);
@@ -56,7 +59,7 @@ class _QuestionPageState extends State<QuestionPage> {
 
   Future<void> _appendAnswers(String date, Map<String, String> answers) async {
     Directory directory = await getApplicationDocumentsDirectory();
-    File file = File('${directory.path}/answers.txt');
+    File file = File('${directory.path}/answers.json');
 
     Map<String, dynamic> jsonContent = {};
     if (await file.exists()) {
@@ -66,14 +69,13 @@ class _QuestionPageState extends State<QuestionPage> {
     jsonContent[date] = answers;
 
     await file.writeAsString(jsonEncode(jsonContent));
-    print(await file.readAsString());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Daily Questions',
           style: TextStyle(color: Colors.white),
         ),
@@ -84,46 +86,53 @@ class _QuestionPageState extends State<QuestionPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: questions.isEmpty
-              ? [Text('Loading questions...')]
+              ? [const Text('Loading questions...')]
               : [
-            Text(
-              questions[questionIndex]['title'],
-              style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: CupertinoColors.lightBackgroundGray),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(
-                questions[questionIndex]['text'],
-                style: TextStyle(fontSize: 18.0, color: CupertinoColors.lightBackgroundGray),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: TextField(
-                controller: answerController,
-                decoration: const InputDecoration(
-                  labelText: 'Your Answer',
-                  labelStyle: TextStyle(color: Colors.blueGrey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blueGrey),
+                  Text(
+                    questions[questionIndex]['title'],
+                    style: const TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                      color: CupertinoColors.lightBackgroundGray,
+                    ),
                   ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blueGrey),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                      questions[questionIndex]['text'],
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        color: CupertinoColors.lightBackgroundGray,
+                      ),
+                    ),
                   ),
-                ),
-                cursorColor: Colors.blueGrey,
-              ),
-            ),
-            ElevatedButton(
-              onPressed: _answerQuestion,
-              child: Text('Answer'),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Constants.buttonCol
-              ),
-            ),
-          ],
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: TextField(
+                      controller: answerController,
+                      decoration: const InputDecoration(
+                        labelText: 'Your Answer',
+                        labelStyle: TextStyle(color: Colors.blueGrey),
+                        filled: true,
+                        fillColor: Colors.white,
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blueGrey),
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blueGrey),
+                        ),
+                      ),
+                      cursorColor: Colors.blueGrey,
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _answerQuestion,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Constants.buttonCol,
+                    ),
+                    child: const Text('Answer'),
+                  ),
+                ],
         ),
       ),
     );
