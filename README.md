@@ -1,2 +1,2 @@
 # Eriks-Data-Collector
-A personal data collection app
+A flutter based personal data collection app
