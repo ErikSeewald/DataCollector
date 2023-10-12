@@ -1,3 +1,4 @@
+import 'package:DataCollector/FileContentCopier.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'constants.dart';
@@ -13,14 +14,22 @@ class QuestionPage extends StatefulWidget {
 
 class _QuestionPageState extends State<QuestionPage> {
   List<Map<String, dynamic>> questions = [];
-  Map<String, String> answers = {};
+  Map<String, dynamic> answersJson = {};
   int questionIndex = 0;
   TextEditingController answerController = TextEditingController();
+  String currentDate = DateTime.now().toString().split(' ')[0];
 
   @override
   void initState() {
     super.initState();
     _loadQuestions();
+  }
+
+  String? getAnswerForIndex(int index) {
+    if (index < 0 || index >= questions.length) {
+      return null;
+    }
+    return answersJson[currentDate][questions[index]['id']];
   }
 
   Future<void> _loadQuestions() async {
@@ -35,29 +44,60 @@ class _QuestionPageState extends State<QuestionPage> {
     }
 
     List<dynamic> jsonData = jsonDecode(jsonString);
+
+    //Load previous answers of the day
+    Directory directory = await getApplicationDocumentsDirectory();
+    File file = File('${directory.path}/answers.json');
+
+    Map<String, dynamic> jsonContent = {};
+    if (await file.exists()) {
+      String fileContent = await file.readAsString();
+      jsonContent = jsonDecode(fileContent);
+    }
+
     setState(() {
       questions = jsonData.cast<Map<String, dynamic>>();
+      answersJson = jsonContent;
+      answerController.text = getAnswerForIndex(questionIndex) ?? "";
     });
   }
 
-  void _answerQuestion() {
+  void _loadNextQuestion() {
     String questionId = questions[questionIndex]['id'];
-    answers[questionId] = answerController.text;
+    answersJson[currentDate][questionId] = answerController.text;
 
     setState(() {
-      questionIndex = (questionIndex + 1) % questions.length;
+      int nextIndex = questionIndex + 1;
       answerController.clear();
 
-      //Final question answered
-      if (questionIndex == 0) {
-        String currentDate = DateTime.now().toString().split(' ')[0];
-        _appendAnswers(currentDate, answers);
-        Navigator.pop(context); //return
+      //Load saved answer if available
+      if (nextIndex < questions.length) {
+        String? savedAnswer = getAnswerForIndex(questionIndex + 1);
+        if (savedAnswer != null) {
+          answerController.text = savedAnswer;
+        }
+      } else {
+        //Final question answered
+        _appendAnswers(currentDate, answersJson[currentDate]);
+        Navigator.pop(context);
+        return;
       }
+      questionIndex = nextIndex;
     });
   }
 
-  Future<void> _appendAnswers(String date, Map<String, String> answers) async {
+  void _loadPreviousQuestion() {
+    if (questionIndex < 1) {
+      return;
+    }
+
+    setState(() {
+      answerController.text = getAnswerForIndex(questionIndex - 1) ?? "";
+      questionIndex--;
+    });
+  }
+
+  Future<void> _appendAnswers(String date, Map<String, dynamic> answers) async {
     Directory directory = await getApplicationDocumentsDirectory();
     File file = File('${directory.path}/answers.json');
 
@@ -125,12 +165,25 @@ class _QuestionPageState extends State<QuestionPage> {
                       cursorColor: Colors.blueGrey,
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: _answerQuestion,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Constants.buttonCol,
-                    ),
-                    child: const Text('Answer'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _loadPreviousQuestion,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Constants.buttonCol,
+                        ),
+                        child: const Icon(Icons.arrow_back),
+                      ),
+                      const SizedBox(width: 20.0),
+                      ElevatedButton(
+                        onPressed: _loadNextQuestion,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Constants.buttonCol,
+                        ),
+                        child: const Icon(Icons.arrow_forward),
+                      ),
+                    ],
                   ),
                 ],
         ),
