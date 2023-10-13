@@ -1,4 +1,3 @@
-import 'package:DataCollector/FileContentCopier.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'constants.dart';
@@ -13,25 +12,40 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
+  //PROGRAM VARIABLES
   List<Map<String, dynamic>> questions = [];
   Map<String, dynamic> answersJson = {};
   int questionIndex = 0;
   TextEditingController answerController = TextEditingController();
-  String currentDate = DateTime.now().toString().split(' ')[0];
 
+  //FILE VARIABLES
+  String currentDate = DateTime.now().toString().split(' ')[0];
+  late Directory directory;
+  late File answerFile;
+  bool answerFileInitialized = false;
+
+  //INITIALIZATION
   @override
   void initState() {
     super.initState();
+    _initAsync();
+  }
+
+  void _initAsync() async {
+    await _initAnswerFile();
     _loadQuestions();
   }
 
-  String? getAnswerForIndex(int index) {
-    if (index < 0 || index >= questions.length) {
-      return null;
+  Future<void> _initAnswerFile() async {
+    if (answerFileInitialized) {
+      return;
     }
-    return answersJson[currentDate][questions[index]['id']];
+    directory = await getApplicationDocumentsDirectory();
+    answerFile = File('${directory.path}/answers.json');
+    answerFileInitialized = true;
   }
 
+  //FILE MANAGEMENT
   Future<void> _loadQuestions() async {
     String jsonString;
     try {
@@ -42,19 +56,13 @@ class _QuestionPageState extends State<QuestionPage> {
       jsonString = await rootBundle
           .loadString('assets/questions/example_questions.json');
     }
-
     List<dynamic> jsonData = jsonDecode(jsonString);
 
     //Load previous answers of the day
-    Directory directory = await getApplicationDocumentsDirectory();
-    File file = File('${directory.path}/answers.json');
-
-    Map<String, dynamic> jsonContent = {};
-    if (await file.exists()) {
-      String fileContent = await file.readAsString();
-      jsonContent = jsonDecode(fileContent);
+    Map<String, dynamic> jsonContent = await _getAnswersJson();
+    if (jsonContent[currentDate] == null) {
+      jsonContent[currentDate] = {};
     }
-    if (jsonContent[currentDate] == null) {jsonContent[currentDate] = {};}
 
     setState(() {
       questions = jsonData.cast<Map<String, dynamic>>();
@@ -63,6 +71,23 @@ class _QuestionPageState extends State<QuestionPage> {
     });
   }
 
+  Future<Map<String, dynamic>> _getAnswersJson() async {
+    Map<String, dynamic> jsonContent = {};
+    if (await answerFile.exists()) {
+      String fileContent = await answerFile.readAsString();
+      jsonContent = jsonDecode(fileContent);
+    }
+    return jsonContent;
+  }
+
+  void _appendAnswers(String date, Map<dynamic, dynamic> answers) async {
+    Map<String, dynamic> jsonContent = await _getAnswersJson();
+    jsonContent[date] = answers;
+
+    await answerFile.writeAsString(jsonEncode(jsonContent));
+  }
+
+  //CONTROL
   void _loadNextQuestion() {
     String questionId = questions[questionIndex]['id'];
     answersJson[currentDate][questionId] = answerController.text;
@@ -98,20 +123,14 @@ class _QuestionPageState extends State<QuestionPage> {
     });
   }
 
-  Future<void> _appendAnswers(String date, Map<dynamic, dynamic> answers) async {
-    Directory directory = await getApplicationDocumentsDirectory();
-    File file = File('${directory.path}/answers.json');
-
-    Map<String, dynamic> jsonContent = {};
-    if (await file.exists()) {
-      String fileContent = await file.readAsString();
-      jsonContent = jsonDecode(fileContent);
+  String? getAnswerForIndex(int index) {
+    if (index < 0 || index >= questions.length) {
+      return null;
     }
-    jsonContent[date] = answers;
-
-    await file.writeAsString(jsonEncode(jsonContent));
+    return answersJson[currentDate][questions[index]['id']];
   }
 
+  //WIDGET
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,8 +145,8 @@ class _QuestionPageState extends State<QuestionPage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: questions.isEmpty
-              ? [const Text('Loading questions...')]
+          children: questions.isEmpty || !answerFileInitialized
+              ? []
               : [
                   Text(
                     questions[questionIndex]['title'],
