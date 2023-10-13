@@ -54,6 +54,7 @@ class _QuestionPageState extends State<QuestionPage> {
       String fileContent = await file.readAsString();
       jsonContent = jsonDecode(fileContent);
     }
+    if (jsonContent[currentDate] == null) {jsonContent[currentDate] = {};}
 
     setState(() {
       questions = jsonData.cast<Map<String, dynamic>>();
@@ -97,7 +98,7 @@ class _QuestionPageState extends State<QuestionPage> {
     });
   }
 
-  Future<void> _appendAnswers(String date, Map<String, dynamic> answers) async {
+  Future<void> _appendAnswers(String date, Map<dynamic, dynamic> answers) async {
     Directory directory = await getApplicationDocumentsDirectory();
     File file = File('${directory.path}/answers.json');
 
