@@ -193,7 +193,10 @@ class _QuestionPageState extends State<QuestionPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Constants.buttonCol,
                         ),
-                        child: const Icon(Icons.arrow_back),
+                        child: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                        ),
                       ),
                       const SizedBox(width: 20.0),
                       ElevatedButton(
@@ -201,7 +204,10 @@ class _QuestionPageState extends State<QuestionPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Constants.buttonCol,
                         ),
-                        child: const Icon(Icons.arrow_forward),
+                        child: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                        )
                       ),
                     ],
                   ),

@@ -26,6 +26,7 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Eriks Data Collector'),
         backgroundColor: Constants.buttonCol,
+        foregroundColor: Colors.white,
       ),
       backgroundColor: Constants.backgroundCol,
       body: Center(
@@ -40,15 +41,28 @@ class MyHomePage extends StatelessWidget {
               onPressed: () {
                 Navigator.pushNamed(context, '/questionPage');
               },
-              child: const Text('Daily Questions'),
+              child: const Text(
+                'Daily Questions',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.all(10.0),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                   backgroundColor: Constants.buttonCol),
               onPressed: () {
-                FileContentCopier.copy(context);
+                FileContentCopier.share();
               },
-              child: const Text('Copy answers to clipboard'),
+              child: const Text(
+                'Share Answers',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         ),
