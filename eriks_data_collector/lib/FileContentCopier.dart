@@ -66,5 +66,6 @@ class FileContentCopier {
     String fileContents = await rootBundle.loadString('assets/answers_edit.json');
     File file = File('${directory.path}/answers.json');
     await file.writeAsString(fileContents);
+    print("Overwritten successfully");
   }
 }
